@@ -1,5 +1,7 @@
 package labtask1;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 
 import java.io.FileReader;
@@ -19,25 +21,35 @@ public static void main(String[] args)
 {
 	//JSON parser object to parse read file
 	JSONParser jsonParser = new JSONParser();
-
-	try (FileReader reader = new FileReader("src//employees.json"))//poner ruta
-	{
-		//Read JSON file
-		Object obj = jsonParser.parse(reader);
-
-		JSONArray bottleList = (JSONArray) obj; //transforma el objeto json en un array
-		System.out.println(bottleList);
 	
 
-		//Iterate over employee array
-		ArrayList<Bottle> listBottles = new ArrayList<Bottle>(); 
-		bottleList.forEach( bot -> createBottle(listBottles, bot) ); 
+	try
+	{
+		ArrayList<String> jsonStrings = readFileLines("src//employees.json");
+		Iterator<String> reader = jsonStrings.iterator();
+		
+		//Read JSON file
+		while(reader.hasNext()) {
+			String line = fixParsing(reader.next());
+			Object obj = new Object();
+			
+			obj = jsonParser.parse(line);
+			
+			
+			JSONArray bottleList = (JSONArray) obj; //transforma el objeto json en un array
+			System.out.println(bottleList);
+	
+
+			//Iterate over employee array
+			ArrayList<Bottle> listBottles = new ArrayList<Bottle>(); 
+			bottleList.forEach( bot -> createBottle(listBottles, bot) ); 
 	
 		
-		//Representation of the bottles
-		Iterator<Bottle> bottle = listBottles.iterator();
-		while(bottle.hasNext()) {
-			System.out.println(bottle.next().toString());
+			//Representation of the bottles
+			Iterator<Bottle> bottle = listBottles.iterator();
+			while(bottle.hasNext()) {
+				System.out.println(bottle.next().toString());
+			}
 		}
 
 	} catch (FileNotFoundException e) {
@@ -47,6 +59,18 @@ public static void main(String[] args)
 	} catch (ParseException e) {
 		e.printStackTrace();
 	}
+	
+}
+
+private static String fixParsing(String line) {
+	JSONParser jsonParser = new JSONParser();
+	
+	try {
+		jsonParser.parse(line);
+	} catch (ParseException e) {
+		line = line.substring(0, e.getPosition()) + line.substring(e.getPosition()+1);				
+	}
+	return line;
 }
 
 private static void createBottle(ArrayList<Bottle> listBottles, Object bot)
@@ -61,18 +85,47 @@ private static void createBottle(ArrayList<Bottle> listBottles, Object bot)
 	
 }
 
+
+private static ArrayList<String> readFileLines(String filepath) throws FileNotFoundException, IOException{
+	  File fp = new File(filepath);
+	  FileReader fr = new FileReader(fp);
+	  BufferedReader br = new BufferedReader(fr);
+
+	  ArrayList<String> lines = new ArrayList<>();
+	  String line;
+	  while((line = br.readLine()) != null) { lines.add(line); }
+
+	  fr.close();
+	  return lines;
+}
+
+
 private static void parseLiquid(Object values, Bottle b) 
 {
 	
 	Color c = new Color();
 	JSONArray liquid = (JSONArray) values;
+	
+	Object liquidCode = liquid.get(0);
+	Object liquidQuantity = liquid.get(1);
+	
+    //Store the String obtained from the objects above
+    String code = liquidCode.toString();
+    String quantity = liquidQuantity.toString();
 
-	int liquidCode = (int) (long) liquid.get(0);
-	int liquidQuantity = (int) (long) liquid.get(1);
-	
-	c.setCode(liquidCode);
-	c.setQuantity(liquidQuantity);	
-	
+    //If any String has a decimal point, we need to get rid of it 
+    if(code.contains(".")) {
+        int code_dot = code.indexOf("."); //index representing decimal point
+        code = code.substring(0,code_dot); //taking integer part only
+
+    }if (quantity.contains(".")) {
+        int quantity_dot = quantity.indexOf(".");
+        quantity = quantity.substring(0,quantity_dot);
+    }
+
+    c.setCode(Integer.parseInt(code));
+    c.setQuantity(Integer.parseInt(quantity));
+
 	b.getLiquids().add(c); //adds liquid to the bottle b
 
 }
