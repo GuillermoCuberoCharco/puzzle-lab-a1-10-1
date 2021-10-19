@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Scanner;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -19,22 +20,41 @@ public class Main {
 @SuppressWarnings("unchecked")
 public static void main(String[] args)
 {
+	int option;
+	Scanner sc = new Scanner(System.in);
+	
+	System.out.println("What do you would like to do?");
+	System.out.println("1) Read States");
+	System.out.println("2) Check actions");
+	option = sc.nextInt();
+	while(option < 1 || option > 2) {
+		System.out.println("What do you would like to do?");
+		System.out.println("1) Read States");
+		System.out.println("2) Check actions");
+		option = sc.nextInt();
+	}
+	// Lo suyo seria pedir la ruta del fichero por texto, para generalizarlo 
+	//para cualquier fichero
+    if(option == 1) read_states();
+    else checkActions();
+	
+	
+}
+
+private static void read_states() {
 	//JSON parser object to parse read file
 	JSONParser jsonParser = new JSONParser();
-	
-
 	try
 	{
-		ArrayList<String> jsonStrings = readFileLines("src//employees.json");
+		ArrayList<String> jsonStrings = readFileLines("labtask1//src//Estados.json");
 		Iterator<String> reader = jsonStrings.iterator();
 		
 		//Read JSON file
 		while(reader.hasNext()) {
-			String line = fixParsing(reader.next());
-			Object obj = new Object();
+			String line = fixParsing(reader.next()); //In the case there is a existing parsing error in the string it will be fixed
 			
+			Object obj = new Object();			
 			obj = jsonParser.parse(line);
-			
 			
 			JSONArray bottleList = (JSONArray) obj; //transforma el objeto json en un array
 			System.out.println(bottleList);
@@ -59,19 +79,71 @@ public static void main(String[] args)
 	} catch (ParseException e) {
 		e.printStackTrace();
 	}
+}
+
+private static void checkActions() {
+	JSONParser jsonParser = new JSONParser();
+	String inline ="";
+	try
+	{
+		Object obj = jsonParser.parse(new FileReader("labtask1//src//acciones.json"));
+
+        JSONObject jsonObject =  (JSONObject) obj;
+	
+        String name = (String) jsonObject.get("Action");
+        System.out.println(name);
+		
+		
+
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
 	
 }
 
 private static String fixParsing(String line) {
 	JSONParser jsonParser = new JSONParser();
+	String fixedLine=line;
 	
 	try {
 		jsonParser.parse(line);
 	} catch (ParseException e) {
-		line = line.substring(0, e.getPosition()) + line.substring(e.getPosition()+1);				
+		fixedLine = fixString(line);			
 	}
-	return line;
+	return fixedLine;
 }
+
+
+private static String fixString(String line) {
+	String fixLine="";
+	int nOpen = 0;
+	int nClose = 0;
+	
+	for(int i=0; i<line.length(); i++) {
+		
+		if(line.charAt(i) == '[') {
+			nOpen++;
+		}
+		if(line.charAt(i) == ']') {
+			nClose++;
+			if(nOpen>=1) {
+				nOpen--;
+				nClose--;
+			}
+		}
+		
+		if(line.charAt(i)=='[' && nOpen>2) { //error case 1 
+			fixLine = line.substring(0, i-2) + "]" + line.substring(i-2);
+			nOpen--;
+		}
+		if(line.charAt(i)==']' && nClose>1) { //error case 2 
+			fixLine = line.substring(0, i);
+			nOpen++;
+		}	
+	}
+	return fixLine;
+}
+
 
 private static void createBottle(ArrayList<Bottle> listBottles, Object bot)
 {
@@ -103,7 +175,7 @@ private static ArrayList<String> readFileLines(String filepath) throws FileNotFo
 private static void parseLiquid(Object values, Bottle b) 
 {
 	
-	Color c = new Color();
+	Color liquidCol = new Color();
 	JSONArray liquid = (JSONArray) values;
 	
 	Object liquidCode = liquid.get(0);
@@ -112,22 +184,46 @@ private static void parseLiquid(Object values, Bottle b)
     //Store the String obtained from the objects above
     String code = liquidCode.toString();
     String quantity = liquidQuantity.toString();
+    
+    int c = errorCheck(code);
+    int q = errorCheck(quantity);
 
+    liquidCol.setCode(c);
+    liquidCol.setQuantity(q);
+
+	b.getLiquids().add(liquidCol); //adds liquid to the bottle b
+
+}
+
+private static int errorCheck(String num) {
+    int n = 0;
+    
     //If any String has a decimal point, we need to get rid of it 
-    if(code.contains(".")) {
-        int code_dot = code.indexOf("."); //index representing decimal point
-        code = code.substring(0,code_dot); //taking integer part only
-
-    }if (quantity.contains(".")) {
-        int quantity_dot = quantity.indexOf(".");
-        quantity = quantity.substring(0,quantity_dot);
+    if(num.contains(".")) {
+    	n = doubleToInt(num);
+    } 
+    else if(num.contains("-")) {
+    	n = negativeToPositive(num);
     }
+    else {
+    	n = Integer.parseInt(num);
+    }
+    
+    return n;
+}
 
-    c.setCode(Integer.parseInt(code));
-    c.setQuantity(Integer.parseInt(quantity));
+private static int negativeToPositive (String num) {
+	long parseStr = Long.parseLong(num);
+	int negNum = (int) parseStr;
+	int n = Math.abs(negNum);
+	return n;
+}
 
-	b.getLiquids().add(c); //adds liquid to the bottle b
-
+private static int doubleToInt(String num) {
+	double parseDb = Double.parseDouble(num);
+	long n = Math.round(parseDb);
+	int finalNum = (int) n;
+	return finalNum;
 }
 
 private static boolean Is_PossibleAction(Bottle OriginBottle, Bottle DestinationBottle, int quantity)
