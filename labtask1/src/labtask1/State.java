@@ -49,7 +49,7 @@ public class State {
 		State new_state = new State();	
 
 		for(int i=0; i<init_State.getBottles().size()-1; i++) {
-			int quantity = init_State.getBottles().get(i).getQuantity();
+			int quantity = init_State.getBottles().get(i).getQuantityTop();
 
 			for(int j=0; j<init_State.getBottles().size()-1; j++) {
 				

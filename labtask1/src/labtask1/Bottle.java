@@ -15,6 +15,11 @@ public class Bottle {
 		return height;
 	}
 
+	//This refers to get the quantity at the top of the bottle
+	public int getQuantityTop() {
+		return liquids.get(liquids.size()-1).getQuantity();
+	}
+
 	public void setHeight(int height) {
 		this.height = height;
 	}

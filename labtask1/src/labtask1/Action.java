@@ -8,11 +8,10 @@ public class Action {
 		private State result = null;
 		
 
-		public Action(int originBottle, int destBottle, int quantity) {
+		public Action(int originBottle, int destBottle) {
 			super();
 			OriginBottle = originBottle;
 			DestBottle = destBottle;
-			this.quantity = quantity;
 		}
 		
 		public int getOriginBottle() {
@@ -29,14 +28,6 @@ public class Action {
 		
 		public void setDestBottle(int destBottle) {
 			DestBottle = destBottle;
-		}
-		
-		public int getQuantity() {
-			return quantity;
-		}
-		
-		public void setQuantity(int quantity) {
-			this.quantity = quantity;
 		}
 		
 		public State getResult() {
