@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Bottle {
-	private int height = 0;
+	private int height = 10;
 	private ArrayList<Color> liquids = new ArrayList<Color>();
 
 	public ArrayList<Color> getLiquids() {
@@ -52,9 +52,9 @@ public class Bottle {
 		int sumQuantity = 0;
 		int destQuantity = 0;
 		int numLiquids = liquids.size();
-		
+
 		for(int i=numLiquids-1; i>=0; i--) {
-			sumQuantity += liquids.get(i).getQuantity();
+			sumQuantity += liquids.get(i).getQuantity(); 
 			
 			if(quantity >= sumQuantity) {
 				addLiquid(liquids.get(i).getCode(), liquids.get(i).getQuantity(), DestinationBottle);
