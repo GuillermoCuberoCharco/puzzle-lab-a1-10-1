@@ -5,7 +5,6 @@ public class Action {
 		private int OriginBottle;
 		private int DestBottle;
 		private int quantity;
-		private State result = null;
 		
 
 		public Action(int originBottle, int destBottle, int quantity) {
@@ -37,14 +36,6 @@ public class Action {
 		
 		public void setQuantity(int quantity) {
 			this.quantity = quantity;
-		}
-		
-		public State getResult() {
-			return result;
-		}
-
-		public void setResult(State result) {
-			this.result = result;
 		}
 		
 		public boolean equals(Action action) {

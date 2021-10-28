@@ -14,6 +14,11 @@ public class Bottle {
 	public int getHeight() {
 		return height;
 	}
+	
+	//This refers to get the quantity at the top liquid of the bottle
+	public int getQuantityTop() {
+		return liquids.get(liquids.size()-1).getQuantity();
+	}
 
 	public void setHeight(int height) {
 		this.height = height;
@@ -84,5 +89,14 @@ public class Bottle {
 		
 	}
 	
-	
+	//There must be only one liquid of one color on each bottle 
+	public boolean sameLiquid() {
+		boolean isSame = true;
+		
+		if(liquids.size() != 1) {
+			isSame = false;
+		}
+		
+		return isSame;
+	}
 }
