@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Bottle {
-	private int height = 0;
+	private int height = 10;
 	private ArrayList<Color> liquids = new ArrayList<Color>();
 
 	public ArrayList<Color> getLiquids() {
@@ -13,6 +13,11 @@ public class Bottle {
 
 	public int getHeight() {
 		return height;
+	}
+	
+	//This refers to get the quantity at the top liquid of the bottle
+	public int getQuantityTop() {
+		return liquids.get(liquids.size()-1).getQuantity();
 	}
 
 	public void setHeight(int height) {
@@ -52,9 +57,9 @@ public class Bottle {
 		int sumQuantity = 0;
 		int destQuantity = 0;
 		int numLiquids = liquids.size();
-		
+
 		for(int i=numLiquids-1; i>=0; i--) {
-			sumQuantity += liquids.get(i).getQuantity();
+			sumQuantity += liquids.get(i).getQuantity(); 
 			
 			if(quantity >= sumQuantity) {
 				addLiquid(liquids.get(i).getCode(), liquids.get(i).getQuantity(), DestinationBottle);
@@ -84,5 +89,14 @@ public class Bottle {
 		
 	}
 	
-	
+	//There must be only one liquid of one color on each bottle 
+	public boolean sameLiquid() {
+		boolean isSame = true;
+		
+		if(liquids.size() != 1) {
+			isSame = false;
+		}
+		
+		return isSame;
+	}
 }
